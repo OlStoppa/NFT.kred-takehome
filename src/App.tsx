@@ -38,6 +38,8 @@ function App() {
       })
   }, [params])
 
+  console.log(process.env);
+
 
   const switchTabs = (tab: typeof Tabs[0]) => setTab(tab);
 

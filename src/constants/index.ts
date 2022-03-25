@@ -1,3 +1,4 @@
+
 export const Options = [20, 40, 60];
 
 export const Tabs = [{
@@ -8,7 +9,7 @@ export const Tabs = [{
   name: 'Hidden NFTs'
 }];
 
-const TOKEN = process.env.API_TOKEN;
+const TOKEN = '734d4bf5-e766-46a9-be21-94035c1343d6';
 
 export const defaultParams = {
   token: TOKEN,
