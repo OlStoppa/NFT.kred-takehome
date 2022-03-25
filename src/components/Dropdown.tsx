@@ -11,8 +11,8 @@ const Dropdown = ({ options, change, currentCount }: Props) => {
   const [open, toggle] = useState(false);
 
   const handleChange = (opt: typeof options[0]) => {
-    change({ 
-      type: ParamsActionType.INCREMENT_PAGE,
+    change({
+      type: ParamsActionType.UPDATE_COUNT,
       payload: opt
     });
     toggle(false);

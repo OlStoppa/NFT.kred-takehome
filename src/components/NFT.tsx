@@ -3,8 +3,8 @@ import { NFT } from "../model/types"
 const NFTCard = ({ nft }: { nft: NFT }) => {
   return (
     <div className="card">
-      <a>
-        <img src={nft.face} className="card-img-top" style={{ width: '100%' }} />
+      <a href={`https://stellarchain.io/ledger/${nft.uuid}`}>
+        <img src={nft.face} className="card-img-top" style={{ width: '100%' }} alt="" />
       </a>
       <div className="card-body nft-bottom">
         <img src={nft.creator_details.avatar} alt="creator-avatar" className="avatar-img" />
