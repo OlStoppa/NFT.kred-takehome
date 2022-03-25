@@ -1,8 +1,9 @@
-import { useState, SetStateAction } from 'react';
+import { useState } from 'react';
+import { ParamsAction, ParamsActionType } from '../model/types'
 
 interface Props {
   options: number[];
-  change: React.Dispatch<SetStateAction<number>>;
+  change: React.Dispatch<ParamsAction>;
   currentCount: number;
 }
 
@@ -10,7 +11,10 @@ const Dropdown = ({ options, change, currentCount }: Props) => {
   const [open, toggle] = useState(false);
 
   const handleChange = (opt: typeof options[0]) => {
-    change(opt);
+    change({ 
+      type: ParamsActionType.INCREMENT_PAGE,
+      payload: opt
+    });
     toggle(false);
   }
 

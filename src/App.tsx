@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useRef } from 'react';
 import './App.scss';
-import { ApiResponse, NFT } from './model/types';
+import { ApiResponse, NFT, ParamsAction, ParamsActionType } from './model/types';
 import Dropdown from './components/Dropdown';
 import Tab from './components/TabPane';
 import Toggle from './components/Toggle';
@@ -57,32 +57,36 @@ function App() {
   const [data, setData] = useState<NFT[]>([]);
   const [isFiltered, setFiltered] = useState<boolean>(false);
   const [isSortByTime, setSort] = useState<boolean>(false);
-  const [currentPage, setPage] = useState(1);
-  const [count, setCount] = useState(Options[0]);
 
   const [params, dispatchParams] = useReducer(paramsReducer, defaultParams);
 
-  function paramsReducer(state: typeof defaultParams, action) {
+  function paramsReducer(state: typeof defaultParams, action: ParamsAction) {
     switch (action.type) {
-      case 'increment_page':
+      case ParamsActionType.INCREMENT_PAGE:
         return { ...state, page: state.page + 1 };
+      case ParamsActionType.UPDATE_COUNT:
+        return { ...defaultParams, count: action.payload };
+      case ParamsActionType.TOGGLE_FORSALE:
+        return { ...defaultParams, onsale: action.payload }
     }
   }
+  
+  const prevParams = useRef<typeof params | null>(null);
 
   useEffect(() => {
-    const currentParams = {
-      ...params,
-      page: currentPage,
-      count,
-    }
     axios.get<ApiResponse>(url, {
-      params: currentParams,
+      params
     }).then(res => res.data)
       .then(({ nfts }) => {
-        setData((data) => [...data, ...nfts])
+        setData((data) => {
+          return prevParams.current && prevParams.current.count < params.count ? [...data, ...nfts] : nfts
+        });
+        prevParams.current = params;
       })
-
-  }, [currentPage])
+      .catch(e => {
+        console.error(e);
+      })
+  }, [params])
 
 
   const switchTabs = (tab: typeof Tabs[0]) => setTab(tab);
@@ -121,9 +125,10 @@ function App() {
         selectedTab.key === Tabs[0].key ?
           <Tab nftList={nftList()}>
             <div style={{ display: 'flex', padding: '25px' }}>
-              <Dropdown options={Options} change={setCount} currentCount={count} />
+              <Dropdown options={Options} change={dispatchParams} currentCount={params.count} />
               <Toggle isChecked={isFiltered} changeHandler={() => setFiltered(!isFiltered)} label="Filter T" />
               <Toggle isChecked={isSortByTime} changeHandler={() => setSort(!isSortByTime)} label="Sort By Created Time" />
+              <Toggle isChecked={params.onsale} changeHandler={() => dispatchParams({ type: ParamsActionType.TOGGLE_FORSALE, payload: !params.onsale})} label="Show On Sale" />
             </div>
           </Tab> :
           <Tab nftList={hiddenNftList()}>
@@ -132,7 +137,7 @@ function App() {
             </div> */}
           </Tab>
       }
-      <LoadMore loadMoreAction={() => setPage(currentPage + 1)} />
+      <LoadMore loadMoreAction={() => dispatchParams({ type: ParamsActionType.INCREMENT_PAGE, payload: params.page + 1})} />
     </div>
   );
 }
